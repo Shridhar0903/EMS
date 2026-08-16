@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const ListEmployeeComponents = () => {
 
-    //Create array for storing the Employee data 
-    // const [employees , setEmployees]=useState([])
+    const navigator = useNavigate();
 
     const dummyData=[
         {
@@ -21,10 +21,22 @@ const ListEmployeeComponents = () => {
 
     ]
 
+    // 3. बटणावर क्लिक केल्यावर फॉर्मवर जाण्यासाठी फंक्शन
+    function addNewEmployee(){
+        navigator('/add-employee')
+    }
+
   return (
     <>
     <div className='container mt-5 d-flex flex-column align-items-center'>
         <h2 className='text-center mb-4'>List of Employee</h2>
+
+        {/* 4. Add Employee Button */}
+        <div className='w-75 mb-2'>
+            <button className='btn btn-primary' onClick={addNewEmployee}>Add Employee</button>
+        </div>
+
+        
     <table className='table table-striped table-bordered shadow w-75 '>
         <thead className='table-dark text-center'>
             <tr>

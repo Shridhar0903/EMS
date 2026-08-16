@@ -1,10 +1,13 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const EmployeeComponent = () => {
 
     const [firstName ,setFirstName] = useState('')
      const [lastName ,setLastName] = useState('')
      const [email ,setEmail] = useState('')
+
+     const navigator =useNavigate();
 
      const saveEmployee = (e) =>{
         e.preventDefault();
@@ -13,6 +16,11 @@ const EmployeeComponent = () => {
      // फॉर्ममधील डेटा एका JavaScript Object मध्ये गोळा करणे
         const employee = { firstName, lastName, email }
         console.log("New Employee Data:", employee)
+
+        // 👈 ३. डॅशबोर्ड/लिस्टवर परत जाण्यासाठी फंक्शन
+    function goBackToDashboard() {
+        navigator('/employees') // किंवा navigator('/')
+    }
 
   return (
     <div className='container mt-5'>
@@ -61,6 +69,10 @@ const EmployeeComponent = () => {
 
                             {/* Submit Button */}
                             <button className='btn btn-success' onClick={saveEmployee}>Submit</button>
+
+                            <button className='btn btn-danger ms-3 w-25' onClick={goBackToDashboard} type='button'>
+                                Back
+                            </button>
 
                     </form>
 
