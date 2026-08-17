@@ -1,26 +1,29 @@
-import React, { useState } from 'react'
+import React, { useState ,useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { listEmployees } from '../services/EmployeeService';
+
 
 const ListEmployeeComponents = () => {
 
     const navigator = useNavigate();
 
-    const dummyData=[
-        {
-            "id":1,
-            "firstName":"Harsh",
-            "lastName": "Bagayatkar",
-            "email": "harsh@gmail.com"
-        },
-        {
-            "id":2,
-            "firstName":"Shridhar",
-            "lastName": "Bagayatkar",
-            "email": "shridhar@gmail.com"
-        }
+    const [employee ,setEmployees]=useState([]) //emplty array at Starting
 
-    ]
+    //to get data from backend when page load
+    useEffect(()=>{
+        getAllEmployees();
+    }, [])
 
+    function getAllEmployees(){
+        listEmployees().then((response)=>{
+            setEmployees(response.data);  //बॅकएंडवरून आलेला डेटा State मध्ये सेव्ह केला
+        }).catch(error=>{
+            console.error("Error in Api call: ", error);
+        })
+
+    }
+
+   
     // 3. बटणावर क्लिक केल्यावर फॉर्मवर जाण्यासाठी फंक्शन
     function addNewEmployee(){
         navigator('/add-employee')
@@ -56,7 +59,7 @@ const ListEmployeeComponents = () => {
         </thead>
         <tbody className='text-center'>
             {
-                dummyData.map(
+                employee.map(
                     employee =>
                         <tr key={employee.id}>
                             <td>{employee.id}</td>
