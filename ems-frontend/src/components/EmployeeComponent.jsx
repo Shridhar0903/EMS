@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { createEmployee } from '../services/EmployeeService'
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom' // Added useParams import
+import { createEmployee, getEmployee, updateEmployee } from '../services/EmployeeService' // Add updateEmployee if available
 
 const EmployeeComponent = () => {
 
@@ -8,7 +8,6 @@ const EmployeeComponent = () => {
     const [lastName, setLastName] = useState('')
     const [email, setEmail] = useState('')
 
-    // 👈 १. एरर मेसेज साठवण्यासाठी State
     const [errors, setErrors] = useState({
         firstName: '',
         lastName: '',
@@ -16,13 +15,24 @@ const EmployeeComponent = () => {
     })
 
     const navigator = useNavigate();
+    const { id } = useParams(); // Now properly imported from react-router-dom
 
-    // 👈 २. ई-मेल आणि बाकीच्या फील्ड्सची तपासणी करणारे फंक्शन
+    useEffect(() => {
+        if (id) {
+            getEmployee(id).then((response) => {
+                setFirstName(response.data.firstName);
+                setLastName(response.data.lastName);
+                setEmail(response.data.email);
+            }).catch(error => {
+                console.error("Error fetching employee:", error);
+            });
+        }
+    }, [id]);
+
     function validateForm() {
         let valid = true;
         const errorsCopy = { ...errors };
 
-        // First Name Validation
         if (firstName.trim()) {
             errorsCopy.firstName = '';
         } else {
@@ -30,7 +40,6 @@ const EmployeeComponent = () => {
             valid = false;
         }
 
-        // Last Name Validation
         if (lastName.trim()) {
             errorsCopy.lastName = '';
         } else {
@@ -38,8 +47,6 @@ const EmployeeComponent = () => {
             valid = false;
         }
 
-        // 👈 Email Validation (Regex Pattern)
-        // हा पॅटर्न अचूक ई-मेल फॉरमॅट तपासतो (उदा. user@domain.com)
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
         if (email.trim()) {
@@ -58,32 +65,50 @@ const EmployeeComponent = () => {
         return valid;
     }
 
-    const saveEmployee = (e) => {
+    const saveOrUpdateEmployee = (e) => {
         e.preventDefault();
 
-        // 👈 ३. फॉर्म व्हॅलिडेट झाल्यावरच सबमिट होईल
         if (validateForm()) {
-            const employee = { firstName, lastName, email }
-            console.log("Saving Employee Data:", employee)
+            const employee = { firstName, lastName, email };
 
-            createEmployee(employee).then((response) => {
-                console.log("Data Saved Successfully:", response.data);
-                navigator('/employees')
-            }).catch(error => {
-                console.error("Error saving employee:", error);
-            })
+            if (id) {
+                // Update existing employee
+                updateEmployee(id, employee).then((response) => {
+                    console.log("Data Updated Successfully:", response.data);
+                    navigator('/employees');
+                }).catch(error => {
+                    console.error("Error updating employee:", error);
+                });
+            } else {
+                // Create new employee
+                createEmployee(employee).then((response) => {
+                    console.log("Data Saved Successfully:", response.data);
+                    navigator('/employees');
+                }).catch(error => {
+                    console.error("Error saving employee:", error);
+                });
+            }
         }
     }
 
     function goBackToDashboard() {
-        navigator('/employees')
+        navigator('/employees');
+    }
+
+    // Dynamic Title based on whether editing or adding
+    const pageTitle = () => {
+        if (id) {
+            return <h2 className='text-center mt-3'>Update Employee</h2>;
+        } else {
+            return <h2 className='text-center mt-3'>Add Employee</h2>;
+        }
     }
 
     return (
         <div className='container mt-5'>
             <div className='row'>
                 <div className='card col-md-6 offset-md-3 shadow'>
-                    <h2 className='text-center mt-3'>Add Employee</h2>
+                    {pageTitle()}
                     <div className='card-body'>
                         <form>
                             {/* First Name Field */}
@@ -129,11 +154,11 @@ const EmployeeComponent = () => {
                             </div>
 
                             {/* Submit Button */}
-                            <button className='btn btn-success me-2' onClick={saveEmployee}>Submit</button>
+                            <button className='btn btn-success me-2' onClick={saveOrUpdateEmployee}>Submit</button>
 
                             {/* Cancel Button */}
                             <button className='btn btn-danger' onClick={goBackToDashboard} type='button'>
-                                 Back
+                                Back
                             </button>
                         </form>
                     </div>

@@ -1,6 +1,6 @@
 import React, { useState ,useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { listEmployees } from '../services/EmployeeService';
+import { listEmployees,deleteEmployee } from '../services/EmployeeService';
 
 
 const ListEmployeeComponents = () => {
@@ -23,11 +23,32 @@ const ListEmployeeComponents = () => {
 
     }
 
+    //Delete Function 
+    function removeEmployee(id){
+
+        console.log("Deleting Employee Id:", id);
+
+        //Delete api call
+        deleteEmployee(id).then((response) =>{
+            console.log("Employee Deleted Successfully");
+            getAllEmployees();
+        }).catch(error =>{
+            console.error("Error deleteing employee:" , error)
+        });
+    }
+
    
     // 3. बटणावर क्लिक केल्यावर फॉर्मवर जाण्यासाठी फंक्शन
     function addNewEmployee(){
         navigator('/add-employee')
     }
+
+    // 1. Function to navigate to Edit Page
+    function updateEmployee(id) {
+        navigator(`/edit-employee/${id}`);
+    }
+
+    
 
   return (
     <>
@@ -55,6 +76,9 @@ const ListEmployeeComponents = () => {
                 <th>
                     Employee Email 
                 </th>
+                 <th>
+                    Actions 
+                </th>
             </tr>
         </thead>
         <tbody className='text-center'>
@@ -66,6 +90,21 @@ const ListEmployeeComponents = () => {
                             <td>{employee.firstName}</td>
                             <td>{employee.lastName}</td>
                             <td>{employee.email}</td>
+                            <td>
+                                <button 
+                                    className='btn btn-info btn-sm me-2' 
+                                    onClick={() => updateEmployee(employee.id)}
+                                >
+                                    Update
+                                </button>
+
+                                <button 
+                                    className='btn btn-danger btn-sm' 
+                                    onClick={() => removeEmployee(employee.id)}
+                                >
+                                    Delete
+                                </button>
+                            </td>
                         </tr>
                 )
 
